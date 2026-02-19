@@ -13,6 +13,9 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDocuments from "./pages/admin/AdminDocuments";
 import AdminFolders from "./pages/admin/AdminFolders";
 import AdminApprovals from "./pages/admin/AdminApprovals";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminTrash from "./pages/admin/AdminTrash";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,9 +41,9 @@ const App = () => (
               <Route path="documents" element={<AdminDocuments />} />
               <Route path="folders" element={<AdminFolders />} />
               <Route path="approvals" element={<AdminApprovals />} />
-              <Route path="users" element={<AdminDashboard />} />
-              <Route path="analytics" element={<AdminDashboard />} />
-              <Route path="trash" element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="trash" element={<AdminTrash />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

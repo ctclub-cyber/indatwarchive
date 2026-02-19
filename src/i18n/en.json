@@ -1,0 +1,102 @@
+{
+  "admin": {
+    "dashboard": "Dashboard",
+    "overview": "Overview of the academic document system",
+    "documents": "Documents",
+    "folders": "Folders",
+    "approvals": "Approvals",
+    "users": "Users",
+    "analytics": "Analytics",
+    "recycleBin": "Recycle Bin",
+    "backToPortal": "Back to Portal",
+    "signOut": "Sign Out",
+    "adminPanel": "Admin Panel",
+    "welcomeBack": "Welcome back, {{name}}",
+    "dos": "Director of Studies",
+    "teacher": "Teacher"
+  },
+  "dashboard": {
+    "totalDocuments": "Total Documents",
+    "totalDownloads": "Total Downloads",
+    "pendingApprovals": "Pending Approvals",
+    "activeTeachers": "Active Teachers",
+    "recentActivity": "Recent Activity",
+    "pendingApprovalsTitle": "Pending Approvals",
+    "monthlyTrend": "Monthly Upload Trend",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "users": {
+    "title": "User Management",
+    "subtitle": "Manage teacher accounts and roles",
+    "addTeacher": "Add Teacher",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "joined": "Joined",
+    "actions": "Actions",
+    "noUsers": "No users found",
+    "editRole": "Edit Role",
+    "removeUser": "Remove User",
+    "searchUsers": "Search users..."
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Document download and upload statistics",
+    "downloadsOverTime": "Downloads Over Time",
+    "topDocuments": "Top Downloaded Documents",
+    "bySubject": "Downloads by Subject",
+    "totalDownloads": "Total Downloads",
+    "thisMonth": "This Month",
+    "thisWeek": "This Week",
+    "today": "Today"
+  },
+  "trash": {
+    "title": "Recycle Bin",
+    "subtitle": "Deleted documents are kept for 30 days before permanent removal",
+    "restore": "Restore",
+    "deletePermanently": "Delete Permanently",
+    "emptyTrash": "Empty Trash",
+    "noItems": "Recycle bin is empty",
+    "deletedOn": "Deleted on",
+    "daysRemaining": "{{days}} days remaining"
+  },
+  "approvals": {
+    "title": "Pending Approvals",
+    "subtitle": "Review and approve teacher document uploads",
+    "subtitleTeacher": "Your documents awaiting review by the Director of Studies",
+    "pending": "Pending",
+    "approve": "Approve",
+    "reject": "Reject",
+    "preview": "Preview",
+    "noApprovals": "No pending approvals"
+  },
+  "common": {
+    "search": "Search",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "by": "by"
+  },
+  "login": {
+    "title": "Staff Login",
+    "subtitle": "Sign in to access the admin panel",
+    "email": "Email Address",
+    "password": "Password",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "error": "Invalid email or password",
+    "staffOnly": "This portal is restricted to authorized staff only.",
+    "demoCredentials": "Demo Credentials",
+    "signup": "Sign Up",
+    "signupSubtitle": "Create a new teacher account",
+    "fullName": "Full Name",
+    "confirmPassword": "Confirm Password",
+    "creatingAccount": "Creating account...",
+    "createAccount": "Create Account",
+    "haveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?"
+  }
+}

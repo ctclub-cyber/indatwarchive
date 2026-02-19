@@ -1,0 +1,102 @@
+{
+  "admin": {
+    "dashboard": "Tableau de bord",
+    "overview": "Aperçu du système de documents académiques",
+    "documents": "Documents",
+    "folders": "Dossiers",
+    "approvals": "Approbations",
+    "users": "Utilisateurs",
+    "analytics": "Analytique",
+    "recycleBin": "Corbeille",
+    "backToPortal": "Retour au portail",
+    "signOut": "Déconnexion",
+    "adminPanel": "Panneau d'administration",
+    "welcomeBack": "Bienvenue, {{name}}",
+    "dos": "Directeur des études",
+    "teacher": "Enseignant"
+  },
+  "dashboard": {
+    "totalDocuments": "Total Documents",
+    "totalDownloads": "Total Téléchargements",
+    "pendingApprovals": "Approbations en attente",
+    "activeTeachers": "Enseignants actifs",
+    "recentActivity": "Activité récente",
+    "pendingApprovalsTitle": "Approbations en attente",
+    "monthlyTrend": "Tendance mensuelle des téléversements",
+    "approve": "Approuver",
+    "reject": "Rejeter"
+  },
+  "users": {
+    "title": "Gestion des utilisateurs",
+    "subtitle": "Gérer les comptes enseignants et les rôles",
+    "addTeacher": "Ajouter un enseignant",
+    "name": "Nom",
+    "email": "Email",
+    "role": "Rôle",
+    "joined": "Inscrit",
+    "actions": "Actions",
+    "noUsers": "Aucun utilisateur trouvé",
+    "editRole": "Modifier le rôle",
+    "removeUser": "Supprimer l'utilisateur",
+    "searchUsers": "Rechercher des utilisateurs..."
+  },
+  "analytics": {
+    "title": "Analytique",
+    "subtitle": "Statistiques de téléchargement et téléversement de documents",
+    "downloadsOverTime": "Téléchargements au fil du temps",
+    "topDocuments": "Documents les plus téléchargés",
+    "bySubject": "Téléchargements par matière",
+    "totalDownloads": "Total téléchargements",
+    "thisMonth": "Ce mois",
+    "thisWeek": "Cette semaine",
+    "today": "Aujourd'hui"
+  },
+  "trash": {
+    "title": "Corbeille",
+    "subtitle": "Les documents supprimés sont conservés 30 jours avant suppression définitive",
+    "restore": "Restaurer",
+    "deletePermanently": "Supprimer définitivement",
+    "emptyTrash": "Vider la corbeille",
+    "noItems": "La corbeille est vide",
+    "deletedOn": "Supprimé le",
+    "daysRemaining": "{{days}} jours restants"
+  },
+  "approvals": {
+    "title": "Approbations en attente",
+    "subtitle": "Examiner et approuver les téléversements des enseignants",
+    "subtitleTeacher": "Vos documents en attente de révision par le directeur des études",
+    "pending": "En attente",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "preview": "Aperçu",
+    "noApprovals": "Aucune approbation en attente"
+  },
+  "common": {
+    "search": "Rechercher",
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "by": "par"
+  },
+  "login": {
+    "title": "Connexion du personnel",
+    "subtitle": "Connectez-vous pour accéder au panneau d'administration",
+    "email": "Adresse email",
+    "password": "Mot de passe",
+    "signIn": "Se connecter",
+    "signingIn": "Connexion en cours...",
+    "error": "Email ou mot de passe invalide",
+    "staffOnly": "Ce portail est réservé au personnel autorisé uniquement.",
+    "demoCredentials": "Identifiants de démonstration",
+    "signup": "S'inscrire",
+    "signupSubtitle": "Créer un nouveau compte enseignant",
+    "fullName": "Nom complet",
+    "confirmPassword": "Confirmer le mot de passe",
+    "creatingAccount": "Création du compte...",
+    "createAccount": "Créer un compte",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "noAccount": "Vous n'avez pas de compte ?"
+  }
+}
