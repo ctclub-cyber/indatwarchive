@@ -14,16 +14,208 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      documents: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          class_level: string | null
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          downloads: number
+          file_size: string
+          file_type: string
+          file_url: string | null
+          folder_id: string | null
+          id: string
+          name: string
+          status: string
+          subject: string | null
+          tags: string[] | null
+          updated_at: string
+          uploaded_by: string | null
+          year: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          class_level?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          downloads?: number
+          file_size?: string
+          file_type?: string
+          file_url?: string | null
+          folder_id?: string | null
+          id?: string
+          name: string
+          status?: string
+          subject?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          uploaded_by?: string | null
+          year?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          class_level?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          downloads?: number
+          file_size?: string
+          file_type?: string
+          file_url?: string | null
+          folder_id?: string | null
+          id?: string
+          name?: string
+          status?: string
+          subject?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          uploaded_by?: string | null
+          year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      download_logs: {
+        Row: {
+          document_id: string
+          downloaded_at: string
+          id: string
+          ip_address: string | null
+        }
+        Insert: {
+          document_id: string
+          downloaded_at?: string
+          id?: string
+          ip_address?: string | null
+        }
+        Update: {
+          document_id?: string
+          downloaded_at?: string
+          id?: string
+          ip_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "download_logs_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      folders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_dos: { Args: never; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "dos" | "teacher"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +342,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["dos", "teacher"],
+    },
   },
 } as const
