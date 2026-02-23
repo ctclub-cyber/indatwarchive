@@ -28,7 +28,11 @@ const AdminLogin = () => {
     );
   }
 
-  if (isAuthenticated) return <Navigate to="/admin/dashboard" replace />;
+  const { user: authUser } = useAdminAuth();
+  if (isAuthenticated && authUser) {
+    const target = authUser.role === 'dos' ? '/admin/dashboard' : '/admin/dashboard';
+    return <Navigate to={target} replace />;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
