@@ -2,10 +2,11 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
-interface AdminUser {
+export interface AdminUser {
+  id: string;
   email: string;
-  role: 'dos' | 'teacher';
   name: string;
+  role: 'dos' | 'teacher';
 }
 
 interface AdminAuthContextType {
@@ -26,23 +27,34 @@ export const useAdminAuth = () => {
 };
 
 async function fetchAdminUser(authUser: User): Promise<AdminUser | null> {
-  const { data: roles } = await supabase
+  // Fetch role — must exist due to trigger, but handle gracefully
+  const { data: roleRow, error: roleError } = await supabase
     .from('user_roles')
     .select('role')
-    .eq('user_id', authUser.id);
+    .eq('user_id', authUser.id)
+    .maybeSingle();
 
-  const role = (roles?.[0]?.role as 'dos' | 'teacher') || 'teacher';
+  if (roleError) {
+    console.error('Failed to fetch role:', roleError);
+    return null;
+  }
+
+  // Normalize to lowercase for safety
+  const rawRole = roleRow?.role;
+  const role: 'dos' | 'teacher' =
+    typeof rawRole === 'string' && rawRole.toLowerCase() === 'dos' ? 'dos' : 'teacher';
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('full_name')
     .eq('user_id', authUser.id)
-    .single();
+    .maybeSingle();
 
   return {
+    id: authUser.id,
     email: authUser.email || '',
-    role,
     name: profile?.full_name || authUser.email || '',
+    role,
   };
 }
 
@@ -51,31 +63,39 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Listen for auth changes FIRST
+    let cancelled = false;
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (cancelled) return;
       if (session?.user) {
         const adminUser = await fetchAdminUser(session.user);
-        setUser(adminUser);
+        if (!cancelled) setUser(adminUser);
       } else {
-        setUser(null);
+        if (!cancelled) setUser(null);
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     });
 
-    // Then check existing session
+    // Check existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (cancelled) return;
       if (session?.user) {
         const adminUser = await fetchAdminUser(session.user);
-        setUser(adminUser);
+        if (!cancelled) setUser(adminUser);
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    // Role will be loaded via onAuthStateChange
     return !error;
   }, []);
 

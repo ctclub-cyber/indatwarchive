@@ -29,7 +29,7 @@ const AdminLayout = () => {
     { label: t('admin.recycleBin'), icon: Trash2, href: '/admin/trash' },
   ];
 
-  if (!isAuthenticated) return <Navigate to="/admin" replace />;
+  // Auth check handled by ProtectedRoute wrapper
 
   const switchLang = (lng: string) => {
     i18n.changeLanguage(lng);

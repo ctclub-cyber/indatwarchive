@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import SearchPage from "./pages/SearchPage";
@@ -34,16 +35,35 @@ const App = () => (
             <Route path="/browse/:folderId" element={<Browse />} />
             <Route path="/search" element={<SearchPage />} />
 
-            {/* Admin routes */}
+            {/* Admin login */}
             <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminLayout />}>
+
+            {/* Protected admin routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="documents" element={<AdminDocuments />} />
               <Route path="folders" element={<AdminFolders />} />
               <Route path="approvals" element={<AdminApprovals />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="analytics" element={<AdminAnalytics />} />
-              <Route path="trash" element={<AdminTrash />} />
+              {/* DOS-only routes */}
+              <Route path="users" element={
+                <ProtectedRoute requiredRole="dos">
+                  <AdminUsers />
+                </ProtectedRoute>
+              } />
+              <Route path="analytics" element={
+                <ProtectedRoute requiredRole="dos">
+                  <AdminAnalytics />
+                </ProtectedRoute>
+              } />
+              <Route path="trash" element={
+                <ProtectedRoute requiredRole="dos">
+                  <AdminTrash />
+                </ProtectedRoute>
+              } />
             </Route>
 
             <Route path="*" element={<NotFound />} />
