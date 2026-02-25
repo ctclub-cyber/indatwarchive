@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import heroBg from '@/assets/hero-bg.jpg';
 import { Search, FolderOpen, Download, FileText, ArrowRight, Bell, TrendingUp, Clock, Star } from 'lucide-react';
@@ -7,23 +7,93 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import DocumentCard from '@/components/DocumentCard';
-import DocumentPreviewModal from '@/components/DocumentPreviewModal';
-import { allDocuments, announcements, classLevels, type DocumentNode } from '@/data/mockData';
+import { supabase } from '@/integrations/supabase/client';
+import type { DocRecord } from '@/types/documents';
+import { announcements, classLevels } from '@/data/mockData';
 
 const Index = () => {
-  const [previewDoc, setPreviewDoc] = useState<DocumentNode | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [recentDocs, setRecentDocs] = useState<DocRecord[]>([]);
+  const [trendingDocs, setTrendingDocs] = useState<DocRecord[]>([]);
+  const [totalDocs, setTotalDocs] = useState(0);
+  const [totalDownloads, setTotalDownloads] = useState(0);
 
-  const recentDocs = [...allDocuments].sort((a, b) => b.uploadDate.localeCompare(a.uploadDate)).slice(0, 4);
-  const trendingDocs = [...allDocuments].sort((a, b) => b.downloads - a.downloads).slice(0, 4);
+  useEffect(() => {
+    const fetchData = async () => {
+      // Recent approved docs
+      const { data: recent } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('status', 'approved')
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(4);
+      if (recent) setRecentDocs(recent as DocRecord[]);
+
+      // Trending by downloads
+      const { data: trending } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('status', 'approved')
+        .is('deleted_at', null)
+        .order('downloads', { ascending: false })
+        .limit(4);
+      if (trending) setTrendingDocs(trending as DocRecord[]);
+
+      // Stats
+      const { count } = await supabase
+        .from('documents')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved')
+        .is('deleted_at', null);
+      setTotalDocs(count || 0);
+
+      // Sum downloads
+      const { data: allApproved } = await supabase
+        .from('documents')
+        .select('downloads')
+        .eq('status', 'approved')
+        .is('deleted_at', null);
+      if (allApproved) setTotalDownloads(allApproved.reduce((s, d) => s + (d.downloads || 0), 0));
+    };
+    fetchData();
+  }, []);
+
+  const handleDownload = async (doc: DocRecord) => {
+    if (!doc.file_url) return;
+    // Increment download count
+    await supabase.rpc('increment_downloads', { doc_id: doc.id });
+    const { data } = await supabase.storage.from('documents').createSignedUrl(doc.file_url, 120);
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+  };
 
   const stats = [
-    { icon: FileText, label: 'Total Documents', value: allDocuments.length.toString() },
-    { icon: Download, label: 'Total Downloads', value: allDocuments.reduce((a, b) => a + b.downloads, 0).toLocaleString() },
+    { icon: FileText, label: 'Total Documents', value: totalDocs.toString() },
+    { icon: Download, label: 'Total Downloads', value: totalDownloads.toLocaleString() },
     { icon: FolderOpen, label: 'Subjects', value: '10' },
     { icon: Star, label: 'Class Levels', value: '6' },
   ];
+
+  const DocCard = ({ doc }: { doc: DocRecord }) => (
+    <div className="rounded-lg border border-border bg-card p-4 flex flex-col gap-2">
+      <div className="flex items-start gap-3">
+        <FileText className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+        <div className="min-w-0 flex-1">
+          <p className="font-medium text-foreground text-sm truncate">{doc.name}</p>
+          {doc.description && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{doc.description}</p>}
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <span>{doc.file_size}</span>
+        {doc.class_level && <Badge variant="outline" className="text-[10px]">{doc.class_level}</Badge>}
+        {doc.subject && <Badge variant="outline" className="text-[10px]">{doc.subject}</Badge>}
+        <span className="ml-auto flex items-center gap-1"><Download className="h-3 w-3" />{doc.downloads}</span>
+      </div>
+      <Button size="sm" variant="outline" className="mt-1" onClick={() => handleDownload(doc)}>
+        <Download className="mr-1.5 h-3.5 w-3.5" />Download
+      </Button>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -40,23 +110,15 @@ const Index = () => {
             Academic Document Portal
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-primary-foreground/80 md:text-lg">
-            Access past papers, revision notes, and study materials for S1–S6. Browse, search, and download academic resources.
+            Access past papers, revision notes, and study materials for S1–S6.
           </p>
           <form
-            onSubmit={e => {
-              e.preventDefault();
-              if (searchQuery.trim()) window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
-            }}
+            onSubmit={e => { e.preventDefault(); if (searchQuery.trim()) window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`; }}
             className="mx-auto mt-8 flex max-w-lg gap-2"
           >
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search documents, subjects, years..."
-                className="bg-card pl-10"
-              />
+              <Input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search documents, subjects, years..." className="bg-card pl-10" />
             </div>
             <Button type="submit">Search</Button>
           </form>
@@ -88,14 +150,10 @@ const Index = () => {
         </div>
         <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
           {classLevels.map(cl => (
-            <Link
-              key={cl}
-              to={`/browse/notes-${cl.toLowerCase()}`}
+            <Link key={cl} to={`/browse`}
               className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-4 transition-all hover:border-accent hover:card-shadow-hover"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-lg">
-                {cl}
-              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-lg">{cl}</div>
               <span className="text-sm font-medium text-foreground">Senior {cl.slice(1)}</span>
             </Link>
           ))}
@@ -105,7 +163,6 @@ const Index = () => {
       {/* Announcements + Recent */}
       <section className="bg-muted/30 py-10">
         <div className="container grid gap-8 lg:grid-cols-3">
-          {/* Announcements */}
           <div className="lg:col-span-1">
             <h2 className="font-serif text-xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Bell className="h-5 w-5 text-accent" /> Announcements
@@ -127,15 +184,14 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Recently uploaded */}
           <div className="lg:col-span-2">
             <h2 className="font-serif text-xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Clock className="h-5 w-5 text-accent" /> Recently Uploaded
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              {recentDocs.map(doc => (
-                <DocumentCard key={doc.id} doc={doc} onPreview={setPreviewDoc} />
-              ))}
+              {recentDocs.length === 0 ? (
+                <p className="text-sm text-muted-foreground col-span-2">No approved documents yet.</p>
+              ) : recentDocs.map(doc => <DocCard key={doc.id} doc={doc} />)}
             </div>
           </div>
         </div>
@@ -147,14 +203,13 @@ const Index = () => {
           <TrendingUp className="h-5 w-5 text-accent" /> Most Downloaded
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {trendingDocs.map(doc => (
-            <DocumentCard key={doc.id} doc={doc} onPreview={setPreviewDoc} />
-          ))}
+          {trendingDocs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No documents to show yet.</p>
+          ) : trendingDocs.map(doc => <DocCard key={doc.id} doc={doc} />)}
         </div>
       </section>
 
       <Footer />
-      <DocumentPreviewModal doc={previewDoc} open={!!previewDoc} onClose={() => setPreviewDoc(null)} />
     </div>
   );
 };
