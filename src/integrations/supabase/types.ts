@@ -29,6 +29,7 @@ export type Database = {
           folder_id: string | null
           id: string
           name: string
+          rejection_reason: string | null
           status: string
           subject: string | null
           tags: string[] | null
@@ -50,6 +51,7 @@ export type Database = {
           folder_id?: string | null
           id?: string
           name: string
+          rejection_reason?: string | null
           status?: string
           subject?: string | null
           tags?: string[] | null
@@ -71,6 +73,7 @@ export type Database = {
           folder_id?: string | null
           id?: string
           name?: string
+          rejection_reason?: string | null
           status?: string
           subject?: string | null
           tags?: string[] | null
@@ -212,6 +215,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_downloads: { Args: { doc_id: string }; Returns: undefined }
       is_dos: { Args: never; Returns: boolean }
     }
     Enums: {

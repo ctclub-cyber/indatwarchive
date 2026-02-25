@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Upload, MoreVertical, FileText, Eye, Pencil, Trash2 } from 'lucide-react';
+import { Search, Upload, MoreVertical, FileText, Eye, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import UploadDocumentDialog from '@/components/UploadDocumentDialog';
+import { toast } from 'sonner';
 
 const CLASS_LEVELS = ['1ère Année', '2ème Année', '3ème Année', '4ème Année', '5ème Année', '6ème Année'];
 const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'French', 'English', 'History', 'Geography', 'Philosophy', 'Computer Science'];
@@ -23,6 +24,7 @@ interface Doc {
   name: string;
   file_size: string;
   file_type: string;
+  file_url: string | null;
   class_level: string | null;
   subject: string | null;
   status: string;
@@ -43,7 +45,7 @@ const AdminDocuments = () => {
   const fetchDocs = useCallback(async () => {
     let query = supabase
       .from('documents')
-      .select('id, name, file_size, file_type, class_level, subject, status, downloads, created_at, uploaded_by')
+      .select('id, name, file_size, file_type, file_url, class_level, subject, status, downloads, created_at, uploaded_by')
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
 
@@ -52,11 +54,8 @@ const AdminDocuments = () => {
     if (subjectFilter !== 'all') query = query.eq('subject', subjectFilter);
 
     const { data, error } = await query;
-    if (!error && data) {
-      setDocs(data);
-    }
+    if (!error && data) setDocs(data);
 
-    // total count
     const { count } = await supabase
       .from('documents')
       .select('*', { count: 'exact', head: true })
@@ -65,6 +64,20 @@ const AdminDocuments = () => {
   }, [search, classFilter, subjectFilter]);
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
+
+  const handlePreview = async (doc: Doc) => {
+    if (!doc.file_url) { toast.error('No file attached'); return; }
+    const { data, error } = await supabase.storage.from('documents').createSignedUrl(doc.file_url, 300);
+    if (error || !data?.signedUrl) { toast.error('Could not generate preview URL'); return; }
+    window.open(data.signedUrl, '_blank');
+  };
+
+  const handleSoftDelete = async (doc: Doc) => {
+    const { error } = await supabase.from('documents').update({ deleted_at: new Date().toISOString() }).eq('id', doc.id);
+    if (error) { toast.error('Delete failed'); return; }
+    toast.success(`"${doc.name}" moved to trash`);
+    fetchDocs();
+  };
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString();
 
@@ -150,10 +163,9 @@ const AdminDocuments = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem><Eye className="mr-2 h-4 w-4" />Preview</DropdownMenuItem>
-                        <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handlePreview(doc)}><Eye className="mr-2 h-4 w-4" />Preview</DropdownMenuItem>
                         {user?.role === 'dos' && (
-                          <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => handleSoftDelete(doc)}><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
